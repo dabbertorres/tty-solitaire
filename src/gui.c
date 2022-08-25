@@ -78,7 +78,7 @@ void draw_stack(struct stack *stack) {
   if (stack_empty(stack)) {
     box(stack->card->frame->window, 0, 0);
     if (stock_stack(stack)) {
-      if (game.passes_through_deck_left >= 1) {
+      if (game.passes_through_deck_left >= 1 || game.passes_through_deck_left < 0) {
         mvwprintw(stack->card->frame->window, 2, 3, "O");
       } else {
         mvwprintw(stack->card->frame->window, 2, 3, "X");

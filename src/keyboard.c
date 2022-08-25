@@ -230,7 +230,7 @@ void keyboard_event(int key) {
     case KEY_SPACEBAR:
       if (cursor_on_stock(cursor)) {
         if (stack_empty(deck->stock)) {
-          if (game.passes_through_deck_left >= 1) {
+          if (game.passes_through_deck_left >= 1 || game.passes_through_deck_left < 0) {
             while (!stack_empty(deck->waste_pile)) {
               move_card(&(deck->waste_pile), &(deck->stock));
               card_cover(deck->stock->card);
@@ -240,7 +240,7 @@ void keyboard_event(int key) {
           }
         } else {
           move_card(&(deck->stock), &(deck->waste_pile));
-          if (stack_empty(deck->stock)) {
+          if (stack_empty(deck->stock) && game.passes_through_deck_left > 0) {
             game.passes_through_deck_left--;
           }
           card_expose(deck->waste_pile->card);
