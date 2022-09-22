@@ -5,7 +5,6 @@
 #include <assert.h>
 
 #include "cursor.h"
-#include "game.h"
 #include "common.h"
 
 void cursor_malloc(struct cursor **cursor) {
@@ -35,57 +34,58 @@ void cursor_unmark(struct cursor *cursor) {
   cursor->marked = false;
 }
 
+#define CURSOR_STEP_X 8
+#define CURSOR_STEP_Y 7
+
+static void cursor_move_left(struct cursor *cursor, int goal) {
+  if (cursor->x > CURSOR_BEGIN_X) {
+      while (cursor->x > goal) {
+        cursor->x = cursor->x - CURSOR_STEP_X;
+      }
+      if (cursor->y > CURSOR_BEGIN_Y) {
+        cursor_move(cursor, UP);
+        cursor_move(cursor, DOWN);
+      }
+  }
+}
+
+static void cursor_move_right(struct cursor *cursor, int goal) {
+  if (cursor->x < CURSOR_END_X) {
+      while (cursor->x < goal) {
+        cursor->x = cursor->x + CURSOR_STEP_X;
+      }
+      if (cursor->y > CURSOR_BEGIN_Y) {
+        cursor_move(cursor, UP);
+        cursor_move(cursor, DOWN);
+      }
+  }
+}
+
 void cursor_move(struct cursor *cursor, enum movement movement) {
   switch (movement) {
   case LEFT:
-    if (cursor->x > CURSOR_BEGIN_X) {
-      cursor->x = cursor->x - 8;
-      if (cursor->y > CURSOR_BEGIN_Y) {
-        cursor_move(cursor, UP);
-        cursor_move(cursor, DOWN);
-      }
-    }
+    cursor_move_left(cursor, cursor->x - CURSOR_STEP_X);
     break;
   case DOWN:
     if (cursor->y == CURSOR_BEGIN_Y) {
-      switch (cursor->x - 3) {
-      case MANEUVRE_0_BEGIN_X:
-        cursor->y = cursor->y + 7 + stack_length(deck->maneuvre[0]);
-        break;
-      case MANEUVRE_1_BEGIN_X:
-        cursor->y = cursor->y + 7 + stack_length(deck->maneuvre[1]);
-        break;
-      case MANEUVRE_2_BEGIN_X:
-        cursor->y = cursor->y + 7 + stack_length(deck->maneuvre[2]);
-        break;
-      case MANEUVRE_3_BEGIN_X:
-        cursor->y = cursor->y + 7 + stack_length(deck->maneuvre[3]);
-        break;
-      case MANEUVRE_4_BEGIN_X:
-        cursor->y = cursor->y + 7 + stack_length(deck->maneuvre[4]);
-        break;
-      case MANEUVRE_5_BEGIN_X:
-        cursor->y = cursor->y + 7 + stack_length(deck->maneuvre[5]);
-        break;
-      case MANEUVRE_6_BEGIN_X:
-        cursor->y = cursor->y + 7 + stack_length(deck->maneuvre[6]);
-        break;
-      }
+      int index = (cursor->x - CURSOR_BEGIN_X) / 8;
+      cursor->y = cursor->y + CURSOR_STEP_Y + stack_length(deck->maneuvre[index]);
     }
     break;
   case RIGHT:
-    if (cursor->x < 49) {
-      cursor->x = cursor->x + 8;
-      if (cursor->y > CURSOR_BEGIN_Y) {
-        cursor_move(cursor, UP);
-        cursor_move(cursor, DOWN);
-      }
-    }
+    cursor_move_right(cursor, cursor->x + CURSOR_STEP_X);
     break;
   case UP:
     if (cursor->y > CURSOR_BEGIN_Y) {
       cursor->y = CURSOR_BEGIN_Y;
     }
+    break;
+  case BEGIN:
+    cursor_move_left(cursor, CURSOR_BEGIN_X);
+    break;
+
+  case END:
+    cursor_move_right(cursor, CURSOR_END_X);
     break;
   }
 }
@@ -104,9 +104,12 @@ enum movement cursor_direction(int key) {
   case 'l':
   case KEY_RIGHT:
     return(RIGHT);
+  case '^':
+    return(BEGIN);
+  case '$':
+    return(END);
   default:
     endwin();
-    game_end();
     assert(false && "invalid cursor direction");
   }
 }
@@ -123,23 +126,11 @@ struct stack **cursor_stack(struct cursor *cursor) {
     case CURSOR_INVALID_SPOT_X: return(NULL);
     default:
       endwin();
-      game_end();
       assert(false && "invalid stack");
     }
   } else {
-    switch (cursor->x) {
-    case CURSOR_MANEUVRE_0_X: return(&(deck->maneuvre[0]));
-    case CURSOR_MANEUVRE_1_X: return(&(deck->maneuvre[1]));
-    case CURSOR_MANEUVRE_2_X: return(&(deck->maneuvre[2]));
-    case CURSOR_MANEUVRE_3_X: return(&(deck->maneuvre[3]));
-    case CURSOR_MANEUVRE_4_X: return(&(deck->maneuvre[4]));
-    case CURSOR_MANEUVRE_5_X: return(&(deck->maneuvre[5]));
-    case CURSOR_MANEUVRE_6_X: return(&(deck->maneuvre[6]));
-    default:
-      endwin();
-      game_end();
-      assert(false && "invalid stack");
-    }
+    int index = (cursor->x - 4) / 8;
+    return(&(deck->maneuvre[index]));
   }
 }
 

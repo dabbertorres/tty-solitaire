@@ -6,6 +6,7 @@
 
 #define CURSOR_BEGIN_X 4
 #define CURSOR_BEGIN_Y 7
+#define CURSOR_END_X 49
 
 #define CURSOR_INVALID_SPOT_X 20
 #define CURSOR_INVALID_SPOT_Y 7
@@ -31,7 +32,7 @@ struct cursor {
   bool marked;
 };
 
-enum movement { LEFT, DOWN, UP, RIGHT };
+enum movement { LEFT, DOWN, UP, RIGHT, BEGIN, END };
 
 extern struct deck *deck;
 extern struct game game;
