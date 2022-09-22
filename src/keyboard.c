@@ -78,6 +78,8 @@ static void handle_card_movement(struct cursor *cursor) {
       case KEY_DOWN:
       case KEY_UP:
       case KEY_RIGHT:
+      case '^':
+      case '$':
         erase_cursor(cursor);
         cursor_move(cursor, cursor_direction(key));
         draw_cursor(cursor);
@@ -222,6 +224,8 @@ void keyboard_event(int key) {
     case KEY_DOWN:
     case KEY_UP:
     case KEY_RIGHT:
+    case '^':
+    case '$':
       erase_cursor(cursor);
       cursor_move(cursor, cursor_direction(key));
       draw_cursor(cursor);
