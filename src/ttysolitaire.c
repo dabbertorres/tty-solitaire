@@ -51,7 +51,6 @@ int main(int argc, char *argv[]) {
       exit(0);
     case 0:
       /* If this option set a "no_argument" flag, do nothing else now. */
-      printf("options[option_index].name: %s\n", options[option_index].name);
       if (options[option_index].flag != 0)
         break;
     default:
