@@ -42,7 +42,7 @@ void cursor_init(struct cursor *);
 void cursor_free(struct cursor *);
 void cursor_mark(struct cursor *);
 void cursor_unmark(struct cursor *);
-void cursor_move(struct cursor *, enum movement);
+void cursor_move(struct cursor *, enum movement, int);
 enum movement cursor_direction(int);
 struct stack **cursor_stack(struct cursor *);
 bool cursor_on_stock(struct cursor *);

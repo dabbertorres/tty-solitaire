@@ -7,6 +7,9 @@
 #include "cursor.h"
 #include "common.h"
 
+#define MAX(x, y) (x > y ? x : y)
+#define MIN(x, y) (x < y ? x : y)
+
 void cursor_malloc(struct cursor **cursor) {
   if (!(*cursor = malloc(sizeof(**cursor)))) {
     tty_solitaire_generic_error(errno, __FILE__, __LINE__);
@@ -43,8 +46,8 @@ static void cursor_move_left(struct cursor *cursor, int goal) {
         cursor->x = cursor->x - CURSOR_STEP_X;
       }
       if (cursor->y > CURSOR_BEGIN_Y) {
-        cursor_move(cursor, UP);
-        cursor_move(cursor, DOWN);
+        cursor_move(cursor, UP, 1);
+        cursor_move(cursor, DOWN, 1);
       }
   }
 }
@@ -55,16 +58,16 @@ static void cursor_move_right(struct cursor *cursor, int goal) {
         cursor->x = cursor->x + CURSOR_STEP_X;
       }
       if (cursor->y > CURSOR_BEGIN_Y) {
-        cursor_move(cursor, UP);
-        cursor_move(cursor, DOWN);
+        cursor_move(cursor, UP, 1);
+        cursor_move(cursor, DOWN, 1);
       }
   }
 }
 
-void cursor_move(struct cursor *cursor, enum movement movement) {
+void cursor_move(struct cursor *cursor, enum movement movement, int factor) {
   switch (movement) {
   case LEFT:
-    cursor_move_left(cursor, cursor->x - CURSOR_STEP_X);
+    cursor_move_left(cursor, MAX(cursor->x - CURSOR_STEP_X * factor, CURSOR_BEGIN_X));
     break;
   case DOWN:
     if (cursor->y == CURSOR_BEGIN_Y) {
@@ -73,7 +76,7 @@ void cursor_move(struct cursor *cursor, enum movement movement) {
     }
     break;
   case RIGHT:
-    cursor_move_right(cursor, cursor->x + CURSOR_STEP_X);
+    cursor_move_right(cursor, MIN(cursor->x + CURSOR_STEP_X * factor, CURSOR_END_X));
     break;
   case UP:
     if (cursor->y > CURSOR_BEGIN_Y) {

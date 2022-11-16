@@ -63,6 +63,8 @@ static void handle_card_movement(struct cursor *cursor) {
   cursor_mark(cursor);
   draw_cursor(cursor);
 
+  int step_factor = 1;
+
   for (;;) {
     if ((key = getch()) == 'q' || key == 'Q') {
       endwin();
@@ -71,6 +73,17 @@ static void handle_card_movement(struct cursor *cursor) {
     }
     if (term_size_ok()) {
       switch (key) {
+      case '1': step_factor = 1; break;
+      case '2': step_factor = 2; break;
+      case '3': step_factor = 3; break;
+      case '4': step_factor = 4; break;
+      case '5': step_factor = 5; break;
+      case '6': step_factor = 6; break;
+      case '7': step_factor = 7; break;
+      case '8': step_factor = 8; break;
+      case '9': step_factor = 9; break;
+      case '0': step_factor = 10; break;
+
       case 'h':
       case 'j':
       case 'k':
@@ -82,8 +95,9 @@ static void handle_card_movement(struct cursor *cursor) {
       case '^':
       case '$':
         erase_cursor(cursor);
-        cursor_move(cursor, cursor_direction(key));
+        cursor_move(cursor, cursor_direction(key), step_factor);
         draw_cursor(cursor);
+        step_factor = 1;
         break;
       case 'm':
         if (origin == cursor_stack(cursor) && maneuvre_stack(*origin)) {
@@ -97,6 +111,7 @@ static void handle_card_movement(struct cursor *cursor) {
             }
           }
         }
+        step_factor = 1;
         break;
       case 'M':
         if (origin == cursor_stack(cursor) && maneuvre_stack(*origin)) {
@@ -109,6 +124,7 @@ static void handle_card_movement(struct cursor *cursor) {
             }
           }
         }
+        step_factor = 1;
         break;
       case 'n':
         if (origin == cursor_stack(cursor) && maneuvre_stack(*origin)) {
@@ -130,6 +146,7 @@ static void handle_card_movement(struct cursor *cursor) {
             }
           }
         }
+        step_factor = 1;
         break;
       case 'N':
         if (origin == cursor_stack(cursor) && maneuvre_stack(*origin)) {
@@ -138,6 +155,7 @@ static void handle_card_movement(struct cursor *cursor) {
           card_mark((*origin)->card);
           draw_stack(*origin);
         }
+        step_factor = 1;
         break;
 
       case KEY_SPACEBAR:;
@@ -178,7 +196,9 @@ static void handle_card_movement(struct cursor *cursor) {
         }
         cursor_unmark(cursor);
         draw_cursor(cursor);
+        step_factor = 1;
         return;
+
       case KEY_ESCAPE:
         if (cursor_stack(cursor) == origin && maneuvre_stack(*origin)) {
           erase_cursor(cursor);
@@ -193,18 +213,27 @@ static void handle_card_movement(struct cursor *cursor) {
           cursor_unmark(cursor);
           draw_cursor(cursor);
         }
+        step_factor = 1;
         return;
+
       case KEY_RESIZE:
         handle_term_resize();
+        step_factor = 1;
         break;
+
       case 'q':
       case 'Q':
         endwin();
         game_end();
         exit(0);
+
+      default:
+        step_factor = 1;
+        break;
       }
     } else if (key == KEY_RESIZE) {
       handle_term_resize();
+      step_factor = 1;
     }
   }
 }
@@ -215,8 +244,22 @@ void keyboard_event(int key) {
     game_end();
     exit(0);
   }
+
+  static int step_factor = 1;
+
   if (term_size_ok()) {
     switch (key) {
+    case '1': step_factor = 1; break;
+    case '2': step_factor = 2; break;
+    case '3': step_factor = 3; break;
+    case '4': step_factor = 4; break;
+    case '5': step_factor = 5; break;
+    case '6': step_factor = 6; break;
+    case '7': step_factor = 7; break;
+    case '8': step_factor = 8; break;
+    case '9': step_factor = 9; break;
+    case '0': step_factor = 10; break;
+
     case 'h':
     case 'j':
     case 'k':
@@ -228,9 +271,11 @@ void keyboard_event(int key) {
     case '^':
     case '$':
       erase_cursor(cursor);
-      cursor_move(cursor, cursor_direction(key));
+      cursor_move(cursor, cursor_direction(key), step_factor);
       draw_cursor(cursor);
+      step_factor = 1;
       break;
+
     case KEY_SPACEBAR:
       if (cursor_on_stock(cursor)) {
         if (stack_empty(deck->stock)) {
@@ -262,12 +307,20 @@ void keyboard_event(int key) {
           handle_card_movement(cursor);
         }
       }
+      step_factor = 1;
       break;
+
     case KEY_RESIZE:
       handle_term_resize();
+      step_factor = 1;
+      break;
+
+    default:
+      step_factor = 1;
       break;
     }
   } else if (key == KEY_RESIZE) {
     handle_term_resize();
+    step_factor = 1;
   }
 }
