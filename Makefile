@@ -7,7 +7,8 @@ CFLAGS += -W -Wall -pedantic -ansi -std=c99 -DVERSION=\"$(VERSION)\"
 # The Ncurses library with wide character support is available as "lncurses"
 # under macOS.
 ifeq ($(shell uname -s),Darwin)
-	LDFLAGS += -lncurses
+	LDFLAGS += -L/usr/local/opt/ncurses/lib -lncurses
+	CFLAGS += -I/usr/local/opt/ncurses/include
 else
 	LDFLAGS += -lncursesw
 endif
